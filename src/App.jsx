@@ -6,35 +6,26 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ToastProvider from './components/feedback/ToastProvider';
 import ConfirmProvider from './components/feedback/ConfirmProvider';
 
-// Error Pages
+// Layouts
+import AuthLayout from './layouts/AuthLayout';
+import EmployeeLayout from './layouts/EmployeeLayout/EmployeeLayout';
+import CandidateLayout from './layouts/CandidateLayout/CandidateLayout';
+
+// Shared placeholder (for nav targets whose business module is not built yet)
+import PlaceholderPage from './components/ui/PlaceholderPage';
+
+// Auth & error pages
+import Login from './pages/Login/Login';
 import Forbidden from './pages/errors/Forbidden';
 import NotFound from './pages/errors/NotFound';
 
-// Layouts
-import AdminLayout from './layouts/AdminLayout/AdminLayout';
-import ManagerLayout from './layouts/ManagerLayout/ManagerLayout';
-import EvaluatorLayout from './layouts/EvaluatorLayout/EvaluatorLayout';
-import CandidateLayout from './layouts/CandidateLayout/CandidateLayout';
-import AuthLayout from './layouts/AuthLayout';
-
-// Shared Pages
-import Login from './pages/Login/Login';
-import ComingSoon from './pages/ComingSoon';
-
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminCalls from './pages/admin/AdminCalls';
-import Users from './pages/Users/Users';
-
-// Manager Pages
-import ManagerDashboard from './pages/manager/ManagerDashboard';
-
-// Evaluator Pages
-import EvaluatorDashboard from './pages/evaluator/EvaluatorDashboard';
-
-// Candidate Pages
-import CandidateDashboard from './pages/candidate/CandidateDashboard';
-import CandidateCalls from './pages/candidate/CandidateCalls';
+// Role pages
+import AdminDashboard from './pages/admin/Dashboard';
+import Users from './pages/admin/Users/Users';
+import HRDashboard from './pages/hr/Dashboard';
+import ManagerDashboard from './pages/manager/Dashboard';
+import EvaluatorDashboard from './pages/evaluator/Dashboard';
+import CandidateHome from './pages/candidate/Dashboard';
 
 function App() {
   return (
@@ -44,7 +35,7 @@ function App() {
           <AuthProvider>
             <BrowserRouter>
               <Routes>
-                {/* Public Routes */}
+                {/* Public */}
                 <Route path="/" element={<AuthLayout />}>
                   <Route index element={<Navigate to="/login" replace />} />
                   <Route path="login" element={<Login />} />
@@ -53,77 +44,93 @@ function App() {
                 {/* Error routes */}
                 <Route path="/403" element={<Forbidden />} />
 
-          {/* ADMIN Platform */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<Users />} />
-            <Route path="calls" element={<AdminCalls />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Route>
+                {/* ADMINISTRATOR */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <EmployeeLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="calls" element={<PlaceholderPage title="Calls" subtitle="Manage calls for applications" />} />
+                  <Route path="reports" element={<PlaceholderPage title="Reports" subtitle="System reports and exports" />} />
+                  <Route path="settings" element={<PlaceholderPage title="Settings" subtitle="Platform configuration" />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
-          {/* MANAGER Platform */}
-          <Route
-            path="/manager"
-            element={
-              <ProtectedRoute allowedRoles={['MANAGER']}>
-                <ManagerLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<ManagerDashboard />} />
-            <Route path="calls" element={<AdminCalls />} /> {/* Reusing component for now */}
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Route>
+                {/* HR */}
+                <Route
+                  path="/hr"
+                  element={
+                    <ProtectedRoute allowedRoles={['HR']}>
+                      <EmployeeLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<HRDashboard />} />
+                  <Route path="calls" element={<PlaceholderPage title="Calls" subtitle="Create and manage calls for applications" />} />
+                  <Route path="applications" element={<PlaceholderPage title="Applications" subtitle="Review submitted applications" />} />
+                  <Route path="assign-evaluators" element={<PlaceholderPage title="Assign Evaluators" subtitle="Assign evaluators to applications" />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
-          {/* HR Platform (portal implemented in a later task) */}
-          <Route
-            path="/hr/*"
-            element={
-              <ProtectedRoute allowedRoles={['HR']}>
-                <ComingSoon title="HR Portal — coming soon" />
-              </ProtectedRoute>
-            }
-          />
+                {/* MANAGER */}
+                <Route
+                  path="/manager"
+                  element={
+                    <ProtectedRoute allowedRoles={['MANAGER']}>
+                      <EmployeeLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<ManagerDashboard />} />
+                  <Route path="reviews" element={<PlaceholderPage title="Reviews" subtitle="Review applications and evaluations" />} />
+                  <Route path="decisions" element={<PlaceholderPage title="Decisions" subtitle="Final decisions on applications" />} />
+                  <Route path="statistics" element={<PlaceholderPage title="Statistics" subtitle="Performance and process statistics" />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
-          {/* EVALUATOR Platform */}
-          <Route
-            path="/evaluator"
-            element={
-              <ProtectedRoute allowedRoles={['EVALUATOR']}>
-                <EvaluatorLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<EvaluatorDashboard />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Route>
+                {/* EVALUATOR */}
+                <Route
+                  path="/evaluator"
+                  element={
+                    <ProtectedRoute allowedRoles={['EVALUATOR']}>
+                      <EmployeeLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<EvaluatorDashboard />} />
+                  <Route path="assigned-applications" element={<PlaceholderPage title="Assigned Applications" subtitle="Applications assigned to you" />} />
+                  <Route path="evaluations" element={<PlaceholderPage title="Evaluations" subtitle="Your submitted evaluations" />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
-          {/* CANDIDATE Platform */}
-          <Route
-            path="/candidate"
-            element={
-              <ProtectedRoute allowedRoles={['CANDIDATE']}>
-                <CandidateLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<CandidateDashboard />} />
-            <Route path="calls" element={<CandidateCalls />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Route>
+                {/* CANDIDATE (careers portal — top nav, no sidebar) */}
+                <Route
+                  path="/candidate"
+                  element={
+                    <ProtectedRoute allowedRoles={['CANDIDATE']}>
+                      <CandidateLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<CandidateHome />} />
+                  <Route path="calls" element={<PlaceholderPage contained title="Available Calls" subtitle="Browse and apply to open positions" />} />
+                  <Route path="applications" element={<PlaceholderPage contained title="My Applications" subtitle="Track your submitted applications" />} />
+                  <Route path="documents" element={<PlaceholderPage contained title="Documents" subtitle="Manage your CV and documents" />} />
+                  <Route path="profile" element={<PlaceholderPage contained title="Profile" subtitle="Your personal information" />} />
+                  <Route path="*" element={<Navigate to="dashboard" replace />} />
+                </Route>
 
-                {/* Global 404 Fallback */}
+                {/* Global 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -2,99 +2,52 @@ import axiosClient from '../api/client';
 import { API_ENDPOINTS } from '../utils/constants';
 
 /**
- * User Service
- * Handles user CRUD operations
+ * User Service — /users
+ * Pure API communication. Errors bubble up with the interceptor's
+ * `error.userMessage` attached; callers surface them via toasts.
+ *
+ * NOTE: the backend exposes no POST /users. New users are created through
+ * authService.register (POST /auth/register), which requires a roleName.
  */
-
 const userService = {
   /**
-   * Get all users
-   * @returns {Promise<Array>} - Array of user objects
+   * Create a user via POST /auth/register.
+   * Unlike authService.register, this does NOT persist the returned token/user,
+   * so an admin creating an account keeps their own session intact.
+   * @param {{email, password, firstName, lastName, roleName}} payload
    */
-  getAllUsers: async () => {
-    try {
-      const response = await axiosClient.get(API_ENDPOINTS.USERS);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch users');
-    }
+  create: async (payload) => {
+    const { data } = await axiosClient.post(API_ENDPOINTS.REGISTER, payload);
+    return data;
   },
 
-  /**
-   * Get user by ID
-   * @param {number} userId - User ID
-   * @returns {Promise<Object>} - User object
-   */
-  getUserById: async (userId) => {
-    try {
-      const response = await axiosClient.get(API_ENDPOINTS.USER_BY_ID(userId));
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch user');
-    }
+  /** GET /users — list all users (ADMIN, MANAGER). */
+  getAll: async () => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.USERS);
+    return data;
   },
 
-  /**
-   * Get users by role
-   * @param {string} role - Role name (e.g., 'ADMIN', 'USER')
-   * @returns {Promise<Array>} - Array of users with specified role
-   */
-  getUsersByRole: async (role) => {
-    try {
-      const response = await axiosClient.get(API_ENDPOINTS.USERS_BY_ROLE(role));
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch users by role: ${role}`);
-    }
+  /** GET /users/{id} */
+  getById: async (userId) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.USER_BY_ID(userId));
+    return data;
   },
 
-  /**
-   * Update user
-   * @param {number} userId - User ID
-   * @param {Object} userData - Updated user data
-   * @returns {Promise<Object>} - Updated user object
-   */
-  updateUser: async (userId, userData) => {
-    try {
-      const response = await axiosClient.put(
-        API_ENDPOINTS.USER_BY_ID(userId),
-        userData
-      );
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to update user');
-    }
+  /** GET /users/role/{roleName} */
+  getByRole: async (roleName) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.USERS_BY_ROLE(roleName));
+    return data;
   },
 
-  /**
-   * Delete user
-   * @param {number} userId - User ID
-   * @returns {Promise<void>}
-   */
-  deleteUser: async (userId) => {
-    try {
-      await axiosClient.delete(API_ENDPOINTS.USER_BY_ID(userId));
-    } catch (error) {
-      throw new Error('Failed to delete user');
-    }
+  /** PUT /users/{id} — body: UserDTO */
+  update: async (userId, userDTO) => {
+    const { data } = await axiosClient.put(API_ENDPOINTS.USER_BY_ID(userId), userDTO);
+    return data;
   },
 
-  /**
-   * Search users (client-side)
-   * @param {Array} users - Array of users to search
-   * @param {string} query - Search query
-   * @returns {Array} - Filtered users
-   */
-  searchUsers: (users, query) => {
-    if (!query) return users;
-
-    const lowerQuery = query.toLowerCase();
-    return users.filter(
-      (user) =>
-        user.name?.toLowerCase().includes(lowerQuery) ||
-        user.email?.toLowerCase().includes(lowerQuery) ||
-        user.username?.toLowerCase().includes(lowerQuery)
-    );
+  /** DELETE /users/{id} (ADMIN only) */
+  remove: async (userId) => {
+    await axiosClient.delete(API_ENDPOINTS.USER_BY_ID(userId));
   },
 };
 

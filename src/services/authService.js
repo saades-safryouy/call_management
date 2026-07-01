@@ -57,7 +57,9 @@ const authService = {
       return { token: data.token, user };
     } catch (error) {
       const message =
-        error.response?.data?.message || 'Login failed. Please check your credentials.';
+        error.userMessage ||
+        error.response?.data?.message ||
+        'Login failed. Please check your credentials.';
       throw new Error(message);
     }
   },
@@ -77,7 +79,9 @@ const authService = {
       return { token: data.token, user };
     } catch (error) {
       const message =
-        error.response?.data?.message || 'Registration failed. Please try again.';
+        error.userMessage ||
+        error.response?.data?.message ||
+        'Registration failed. Please try again.';
       throw new Error(message);
     }
   },
