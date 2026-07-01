@@ -47,16 +47,16 @@ const Navbar = ({ toggleSidebar }) => {
           <div className="flex items-center space-x-3">
             <div className="hidden flex-col text-right sm:flex">
               <span className="text-sm font-bold text-gray-900 leading-none">
-                {user?.name || user?.username || 'Utilisateur'}
+                {user?.name || user?.email || 'Utilisateur'}
               </span>
-              <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider mt-1">
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wider mt-1">
                 {user?.role || 'Membre'}
               </span>
             </div>
             <button className="flex items-center space-x-1 rounded-lg p-1 hover:bg-gray-50 transition-all ring-1 ring-transparent hover:ring-gray-200">
-              <div className="h-9 w-9 overflow-hidden rounded-full bg-red-50 ring-2 ring-red-600/10">
-                <div className="flex h-full w-full items-center justify-center bg-red-600 text-sm font-bold text-white shadow-inner">
-                  {user?.username?.substring(0, 1).toUpperCase() || 'U'}
+              <div className="h-9 w-9 overflow-hidden rounded-full bg-primary-50 ring-2 ring-primary/10">
+                <div className="flex h-full w-full items-center justify-center bg-primary text-sm font-bold text-white shadow-inner">
+                  {(user?.name || user?.email || 'U').substring(0, 1).toUpperCase()}
                 </div>
               </div>
               <ChevronDown className="h-4 w-4 text-gray-400" />

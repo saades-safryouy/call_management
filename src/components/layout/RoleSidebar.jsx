@@ -67,14 +67,14 @@ const RoleSidebar = ({ isOpen, toggleSidebar, navigation }) => {
       <div className="mt-auto border-t border-gray-100 p-4 bg-gray-50/50">
         {isOpen && (
           <div className="mb-4 flex items-center space-x-3 px-2">
-            <div className="h-9 w-9 rounded-full bg-red-100 p-1 ring-2 ring-red-600/10">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white shadow-sm">
-                {user?.username?.substring(0, 2).toUpperCase() || 'U'}
+            <div className="h-9 w-9 rounded-full bg-primary-100 p-1 ring-2 ring-primary/10">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-sm">
+                {(user?.name || user?.email || 'U').substring(0, 2).toUpperCase()}
               </div>
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-gray-900 truncate">
-                {user?.username || 'User'}
+                {user?.name || user?.email || 'User'}
               </span>
               <span className="text-xs font-medium text-gray-500 uppercase tracking-tighter">{user?.role || 'Guest'}</span>
             </div>
