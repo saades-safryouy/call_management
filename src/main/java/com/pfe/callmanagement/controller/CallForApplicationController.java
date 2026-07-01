@@ -1,17 +1,26 @@
 package com.pfe.callmanagement.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.pfe.callmanagement.dto.CallForApplicationDTO;
 import com.pfe.callmanagement.service.CallForApplicationService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Controller for call for application management endpoints.
@@ -28,7 +37,7 @@ public class CallForApplicationController {
      * Create new call for application endpoint
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @Operation(summary = "Create call", description = "Create a new call for application")
     public ResponseEntity<CallForApplicationDTO> createCall(@Valid @RequestBody CallForApplicationDTO dto) {
         CallForApplicationDTO response = callService.createCall(dto);
@@ -89,7 +98,7 @@ public class CallForApplicationController {
      * Update call endpoint
      */
     @PutMapping("/{callId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     @Operation(summary = "Update call", description = "Update call for application")
     public ResponseEntity<CallForApplicationDTO> updateCall(@PathVariable Long callId, @Valid @RequestBody CallForApplicationDTO dto) {
         CallForApplicationDTO response = callService.updateCall(callId, dto);
@@ -100,7 +109,7 @@ public class CallForApplicationController {
      * Delete call endpoint
      */
     @DeleteMapping("/{callId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN', 'HR')")
     @Operation(summary = "Delete call", description = "Delete a call for application")
     public ResponseEntity<Void> deleteCall(@PathVariable Long callId) {
         callService.deleteCall(callId);

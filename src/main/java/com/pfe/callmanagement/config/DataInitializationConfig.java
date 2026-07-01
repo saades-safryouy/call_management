@@ -35,6 +35,11 @@ public class DataInitializationConfig {
                 managerRole.setName("MANAGER");
                 managerRole.setDescription("Manager role with application management capabilities");
                 roleRepository.save(managerRole);
+                
+                Role hrRole = new Role();
+                hrRole.setName("HR");
+                hrRole.setDescription("Human Resources role for managing employee information");
+                roleRepository.save(hrRole);
 
                 Role evaluatorRole = new Role();
                 evaluatorRole.setName("EVALUATOR");
@@ -71,6 +76,19 @@ public class DataInitializationConfig {
                 managerUser.setRole(managerRole);
                 managerUser.setEnabled(true);
                 userRepository.save(managerUser);
+            }
+
+            // Create sample hr user
+            if (userRepository.findByEmail("hr1@applications.com").isEmpty()) {
+                Role hrRole = roleRepository.findByName("HR").orElseThrow();
+                User hrUser = new User();
+                hrUser.setEmail("hr1@applications.com");
+                hrUser.setPassword(passwordEncoder.encode("HR@123"));
+                hrUser.setFirstName("John");
+                hrUser.setLastName("HR");
+                hrUser.setRole(hrRole);
+                hrUser.setEnabled(true);
+                userRepository.save(hrUser);
             }
 
             // Create sample evaluator users

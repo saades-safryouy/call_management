@@ -37,7 +37,7 @@ public class EvaluationController {
      * Create new evaluation endpoint
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EVALUATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'HR', 'EVALUATOR')")
     @Operation(summary = "Create evaluation", description = "Evaluate an application")
     public ResponseEntity<EvaluationDTO> createEvaluation(@Valid @RequestBody EvaluationDTO dto) {
         EvaluationDTO response = evaluationService.createEvaluation(dto);
@@ -89,7 +89,7 @@ public class EvaluationController {
      * Update evaluation endpoint
      */
     @PutMapping("/{evaluationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EVALUATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'HR', 'EVALUATOR')")
     @Operation(summary = "Update evaluation", description = "Update an evaluation")
     public ResponseEntity<EvaluationDTO> updateEvaluation(@PathVariable Long evaluationId, @Valid @RequestBody EvaluationDTO dto) {
         EvaluationDTO response = evaluationService.updateEvaluation(evaluationId, dto);
