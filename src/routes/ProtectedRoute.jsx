@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import Spinner from '../components/ui/Spinner';
 import { getRoleHomePath } from '../utils/constants';
 
 /**
@@ -16,7 +17,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <Spinner size="lg" />
       </div>
     );
   }

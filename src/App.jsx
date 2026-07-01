@@ -2,6 +2,13 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
+import ToastProvider from './components/feedback/ToastProvider';
+import ConfirmProvider from './components/feedback/ConfirmProvider';
+
+// Error Pages
+import Forbidden from './pages/errors/Forbidden';
+import NotFound from './pages/errors/NotFound';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
@@ -31,14 +38,20 @@ import CandidateCalls from './pages/candidate/CandidateCalls';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<AuthLayout />}>
-            <Route index element={<Navigate to="/login" replace />} />
-            <Route path="login" element={<Login />} />
-          </Route>
+    <ErrorBoundary>
+      <ToastProvider>
+        <ConfirmProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<AuthLayout />}>
+                  <Route index element={<Navigate to="/login" replace />} />
+                  <Route path="login" element={<Login />} />
+                </Route>
+
+                {/* Error routes */}
+                <Route path="/403" element={<Forbidden />} />
 
           {/* ADMIN Platform */}
           <Route
@@ -110,11 +123,14 @@ function App() {
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Route>
 
-          {/* Global Fallback */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+                {/* Global 404 Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </ConfirmProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 
