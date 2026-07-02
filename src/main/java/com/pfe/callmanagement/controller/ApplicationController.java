@@ -34,85 +34,118 @@ public class ApplicationController {
     private final ApplicationService applicationService;
 
     /**
-     * Create new application endpoint
+     * Submit a new application
      */
     @PostMapping
-    @Operation(summary = "Submit application", description = "Submit a new application to a call")
-    public ResponseEntity<ApplicationDTO> createApplication(@Valid @RequestBody ApplicationDTO dto) {
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Submit application", description = "Candidate submits an application to a call")
+    public ResponseEntity<ApplicationDTO> createApplication(
+            @Valid @RequestBody ApplicationDTO dto) {
+
         ApplicationDTO response = applicationService.createApplication(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Get application by ID endpoint
+     * Get application by ID
      */
     @GetMapping("/{applicationId}")
-    @Operation(summary = "Get application by ID", description = "Retrieve application information by ID")
-    public ResponseEntity<ApplicationDTO> getApplicationById(@PathVariable Long applicationId) {
-        ApplicationDTO response = applicationService.getApplicationById(applicationId);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Get application by ID")
+    public ResponseEntity<ApplicationDTO> getApplicationById(
+            @PathVariable Long applicationId) {
+
+        return ResponseEntity.ok(
+                applicationService.getApplicationById(applicationId));
     }
 
     /**
-     * Get all applications endpoint
+     * Get all applications
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @Operation(summary = "Get all applications", description = "Retrieve all applications (Admin/Manager only)")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Get all applications")
     public ResponseEntity<List<ApplicationDTO>> getAllApplications() {
-        List<ApplicationDTO> response = applicationService.getAllApplications();
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(
+                applicationService.getAllApplications());
     }
 
     /**
-     * Get applications by status endpoint
+     * Get applications by status
      */
     @GetMapping("/status/{status}")
-    @Operation(summary = "Get applications by status", description = "Retrieve applications filtered by status")
-    public ResponseEntity<List<ApplicationDTO>> getApplicationsByStatus(@PathVariable String status) {
-        List<ApplicationDTO> response = applicationService.getApplicationsByStatus(status);
-        return ResponseEntity.ok(response);
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Get applications by status")
+    public ResponseEntity<List<ApplicationDTO>> getApplicationsByStatus(
+            @PathVariable String status) {
+
+        return ResponseEntity.ok(
+                applicationService.getApplicationsByStatus(status));
     }
 
     /**
-     * Get applications from a candidate endpoint
+     * Get applications by candidate
      */
     @GetMapping("/candidate/{candidateId}")
-    @Operation(summary = "Get applications by candidate", description = "Retrieve all applications from a candidate")
-    public ResponseEntity<List<ApplicationDTO>> getApplicationsByCandidate(@PathVariable Long candidateId) {
-        List<ApplicationDTO> response = applicationService.getApplicationsByCandidate(candidateId);
-        return ResponseEntity.ok(response);
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR','CANDIDATE')")
+    @Operation(summary = "Get applications by candidate")
+    public ResponseEntity<List<ApplicationDTO>> getApplicationsByCandidate(
+            @PathVariable Long candidateId) {
+
+        return ResponseEntity.ok(
+                applicationService.getApplicationsByCandidate(candidateId));
     }
 
     /**
-     * Get applications for a call endpoint
+     * Get applications by call
      */
     @GetMapping("/call/{callId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @Operation(summary = "Get applications by call", description = "Retrieve all applications for a specific call")
-    public ResponseEntity<List<ApplicationDTO>> getApplicationsByCall(@PathVariable Long callId) {
-        List<ApplicationDTO> response = applicationService.getApplicationsByCall(callId);
-        return ResponseEntity.ok(response);
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Get applications by call")
+    public ResponseEntity<List<ApplicationDTO>> getApplicationsByCall(
+            @PathVariable Long callId) {
+
+        return ResponseEntity.ok(
+                applicationService.getApplicationsByCall(callId));
     }
 
     /**
-     * Update application endpoint
+     * Get applications by status and call
+     */
+    @GetMapping("/call/{callId}/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Get applications by status and call")
+    public ResponseEntity<List<ApplicationDTO>> getApplicationsByStatusAndCall(
+            @PathVariable Long callId,
+            @PathVariable String status) {
+
+        return ResponseEntity.ok(
+                applicationService.getApplicationsByStatusAndCall(status, callId));
+    }
+
+    /**
+     * Update application
      */
     @PutMapping("/{applicationId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @Operation(summary = "Update application", description = "Update application status")
-    public ResponseEntity<ApplicationDTO> updateApplication(@PathVariable Long applicationId, @Valid @RequestBody ApplicationDTO dto) {
-        ApplicationDTO response = applicationService.updateApplication(applicationId, dto);
-        return ResponseEntity.ok(response);
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Update application")
+    public ResponseEntity<ApplicationDTO> updateApplication(
+            @PathVariable Long applicationId,
+            @Valid @RequestBody ApplicationDTO dto) {
+
+        return ResponseEntity.ok(
+                applicationService.updateApplication(applicationId, dto));
     }
 
     /**
-     * Delete application endpoint
+     * Delete application
      */
     @DeleteMapping("/{applicationId}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete application", description = "Delete an application")
-    public ResponseEntity<Void> deleteApplication(@PathVariable Long applicationId) {
+    @Operation(summary = "Delete application")
+    public ResponseEntity<Void> deleteApplication(
+            @PathVariable Long applicationId) {
+
         applicationService.deleteApplication(applicationId);
         return ResponseEntity.noContent().build();
     }

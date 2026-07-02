@@ -1,16 +1,35 @@
 package com.pfe.callmanagement.controller;
 
-import com.pfe.callmanagement.dto.DocumentDTO;
-import com.pfe.callmanagement.service.DocumentService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.pfe.callmanagement.dto.DocumentDTO;
+import com.pfe.callmanagement.service.DocumentService;
+import com.pfe.callmanagement.service.FileStorageService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Controller for document management endpoints.
@@ -22,53 +41,82 @@ import java.util.List;
 public class DocumentController {
 
     private final DocumentService documentService;
-
+    private final FileStorageService fileStorageService;
     /**
-     * Upload document endpoint
+     * Upload document
      */
-    @PostMapping
-    @Operation(summary = "Upload document", description = "Upload a document for an application")
-    public ResponseEntity<DocumentDTO> uploadDocument(@Valid @RequestBody DocumentDTO dto) {
-        DocumentDTO response = documentService.uploadDocument(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/upload")
+    @PreAuthorize("hasAnyRole('ADMIN','HR','CANDIDATE')")
+    @Operation(summary = "Upload document")
+    public ResponseEntity<DocumentDTO> uploadDocument(
+           @RequestParam("file") MultipartFile file,
+           @RequestParam("applicationId") Long applicationId) {
+
+       return ResponseEntity.status(HttpStatus.CREATED)
+               .body(documentService.uploadDocument(file, applicationId));
     }
 
     /**
-     * Get document by ID endpoint
+     * Download document
+     */
+   @GetMapping("/download/{fileName}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR','MANAGER','EVALUATOR','CANDIDATE')")
+    @Operation(summary = "Download document")
+    public ResponseEntity<Resource> downloadFile(
+            @PathVariable String fileName) {
+
+            Resource resource = fileStorageService.loadFile(fileName);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+}
+
+    /**
+     * Get document by ID
      */
     @GetMapping("/{documentId}")
-    @Operation(summary = "Get document by ID", description = "Retrieve document information by ID")
-    public ResponseEntity<DocumentDTO> getDocumentById(@PathVariable Long documentId) {
-        DocumentDTO response = documentService.getDocumentById(documentId);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Get document by ID")
+    public ResponseEntity<DocumentDTO> getDocumentById(
+            @PathVariable Long documentId) {
+
+        return ResponseEntity.ok(documentService.getDocumentById(documentId));
     }
 
     /**
-     * Get documents for application endpoint
+     * Get documents by application
      */
     @GetMapping("/application/{applicationId}")
-    @Operation(summary = "Get documents by application", description = "Retrieve all documents for an application")
-    public ResponseEntity<List<DocumentDTO>> getDocumentsByApplication(@PathVariable Long applicationId) {
-        List<DocumentDTO> response = documentService.getDocumentsByApplication(applicationId);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Get documents by application")
+    public ResponseEntity<List<DocumentDTO>> getDocumentsByApplication(
+            @PathVariable Long applicationId) {
+
+        return ResponseEntity.ok(
+                documentService.getDocumentsByApplication(applicationId));
     }
 
     /**
-     * Get documents by file type endpoint
+     * Get documents by type
      */
     @GetMapping("/type/{fileType}")
-    @Operation(summary = "Get documents by file type", description = "Retrieve documents filtered by file type")
-    public ResponseEntity<List<DocumentDTO>> getDocumentsByFileType(@PathVariable String fileType) {
-        List<DocumentDTO> response = documentService.getDocumentsByFileType(fileType);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Get documents by file type")
+    public ResponseEntity<List<DocumentDTO>> getDocumentsByFileType(
+            @PathVariable String fileType) {
+
+        return ResponseEntity.ok(
+                documentService.getDocumentsByFileType(fileType));
     }
 
     /**
-     * Delete document endpoint
+     * Delete document
      */
     @DeleteMapping("/{documentId}")
-    @Operation(summary = "Delete document", description = "Delete a document")
-    public ResponseEntity<Void> deleteDocument(@PathVariable Long documentId) {
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
+    @Operation(summary = "Delete document")
+    public ResponseEntity<Void> deleteDocument(
+            @PathVariable Long documentId) {
+
         documentService.deleteDocument(documentId);
         return ResponseEntity.noContent().build();
     }

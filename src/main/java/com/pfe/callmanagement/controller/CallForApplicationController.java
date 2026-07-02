@@ -95,6 +95,16 @@ public class CallForApplicationController {
     }
 
     /**
+     * Get calls by title endpoint
+     */
+    @GetMapping("/search/{title}")
+    @Operation(summary = "Search calls by title")
+    public ResponseEntity<List<CallForApplicationDTO>> searchCalls(
+        @PathVariable String title) {
+        return ResponseEntity.ok(callService.searchCalls(title));
+    }
+
+    /**
      * Update call endpoint
      */
     @PutMapping("/{callId}")

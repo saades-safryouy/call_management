@@ -1,15 +1,22 @@
 package com.pfe.callmanagement.service;
 
-import com.pfe.callmanagement.dto.UserDTO;
-import com.pfe.callmanagement.entity.User;
-import com.pfe.callmanagement.exception.ResourceNotFoundException;
-import com.pfe.callmanagement.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.pfe.callmanagement.dto.ChangePasswordDTO;
+import com.pfe.callmanagement.dto.UpdateUserRequest;
+import com.pfe.callmanagement.dto.UserDTO;
+import com.pfe.callmanagement.entity.Role;
+import com.pfe.callmanagement.entity.User;
+import com.pfe.callmanagement.exception.DuplicateResourceException;
+import com.pfe.callmanagement.exception.ResourceNotFoundException;
+import com.pfe.callmanagement.repository.RoleRepository;
+import com.pfe.callmanagement.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service for user management operations.
@@ -19,6 +26,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Get user by ID
@@ -34,6 +43,16 @@ public class UserService {
      */
     public List<UserDTO> getAllEnabledUsers() {
         return userRepository.findByEnabledTrue()
+            .stream()
+            .map(this::mapToUserDTO)
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Get all disabled users
+     */
+    public List<UserDTO> getAllDisabledUsers() {
+        return userRepository.findByEnabledFalse()
             .stream()
             .map(this::mapToUserDTO)
             .collect(Collectors.toList());
@@ -66,29 +85,96 @@ public class UserService {
         return getUserByEmail(email);
     }
 
+    
+
     /**
      * Update user information
      */
-    public UserDTO updateUser(Long userId, UserDTO userDTO) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+    public UserDTO updateUser(Long userId, UpdateUserRequest request) {
 
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+    User user = userRepository.findById(userId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("User", "id", userId));
 
-        User updatedUser = userRepository.save(user);
-        return mapToUserDTO(updatedUser);
+    // Prevent duplicate email
+    if (!user.getEmail().equals(request.getEmail())
+            && userRepository.existsByEmail(request.getEmail())) {
+
+        throw new DuplicateResourceException(
+                "User",
+                "email",
+                request.getEmail());
     }
 
+    Role role = roleRepository.findByName(request.getRoleName())
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Role",
+                            "name",
+                            request.getRoleName()));
+
+    user.setFirstName(request.getFirstName());
+    user.setLastName(request.getLastName());
+    user.setEmail(request.getEmail());
+    user.setEnabled(request.getEnabled());
+    user.setRole(role);
+
+    User updatedUser = userRepository.save(user);
+
+    return mapToUserDTO(updatedUser);
+}
     /**
      * Delete user
      */
     public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User", "id", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "id", userId));
+        
+        // Prevent an administrator from deleting their own account
+        String currentUserEmail = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        
+        if (user.getEmail().equals(currentUserEmail)) {
+            throw new IllegalArgumentException("You cannot delete your own account.");
         }
-        userRepository.deleteById(userId);
-    }
+    
+        userRepository.delete(user);
+}
+
+    /**
+     * Change password of the authenticated user.
+     */
+    public void changePassword(ChangePasswordDTO dto) {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "email", email));
+
+        // Verify current password
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect.");
+        }
+
+        // Prevent using the same password
+        if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from the current password.");
+        }
+
+        // Encode and save the new password
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+
+        userRepository.save(user);
+}
+
+
 
     /**
      * Helper method to map User entity to UserDTO

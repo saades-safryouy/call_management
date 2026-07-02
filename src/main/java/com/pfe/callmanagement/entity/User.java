@@ -1,26 +1,38 @@
 package com.pfe.callmanagement.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * User entity representing system users (admins, managers, evaluators, candidates).
- * Can have roles: ADMIN, MANAGER, EVALUATOR, CANDIDATE
- */
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 @Entity
 @Table(name = "users", indexes = {
     @Index(name = "idx_email", columnList = "email")
 })
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"role", "createdCalls", "applications", "evaluations"})
 public class User {
 
     @Id
@@ -48,24 +60,17 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Many to One: Each user has one role
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    // One to Many: User can create many calls for applications
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
     private Set<CallForApplication> createdCalls = new HashSet<>();
 
-    // One to Many: User can submit many applications
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
     private Set<Application> applications = new HashSet<>();
 
-    // One to Many: User can evaluate many applications
     @OneToMany(mappedBy = "evaluator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
     private Set<Evaluation> evaluations = new HashSet<>();
 
     @PrePersist

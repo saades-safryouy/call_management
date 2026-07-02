@@ -1,5 +1,10 @@
 package com.pfe.callmanagement.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.pfe.callmanagement.dto.EvaluationDTO;
 import com.pfe.callmanagement.entity.Application;
 import com.pfe.callmanagement.entity.Evaluation;
@@ -8,12 +13,8 @@ import com.pfe.callmanagement.exception.ResourceNotFoundException;
 import com.pfe.callmanagement.repository.ApplicationRepository;
 import com.pfe.callmanagement.repository.EvaluationRepository;
 import com.pfe.callmanagement.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service for evaluation management operations.
@@ -39,9 +40,11 @@ public class EvaluationService {
         Evaluation evaluation = new Evaluation();
         evaluation.setScore(dto.getScore());
         evaluation.setComment(dto.getComment());
-        evaluation.setEvaluationDate(LocalDateTime.now());
         evaluation.setApplication(application);
         evaluation.setEvaluator(evaluator);
+        if (dto.getEvaluationDate() != null) {
+            evaluation.setEvaluationDate(dto.getEvaluationDate());
+        }
 
         Evaluation savedEval = evaluationRepository.save(evaluation);
         return mapToDTO(savedEval);
@@ -80,7 +83,8 @@ public class EvaluationService {
      * Get average score for an application
      */
     public Double getAverageScore(Long applicationId) {
-        return evaluationRepository.getAverageScoreForApplication(applicationId);
+        Double average = evaluationRepository.getAverageScoreForApplication(applicationId);
+        return average != null ? average : 0.0;
     }
 
     /**

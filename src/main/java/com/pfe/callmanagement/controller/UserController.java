@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.pfe.callmanagement.dto.ChangePasswordDTO;
+import com.pfe.callmanagement.dto.UpdateUserRequest;
 import com.pfe.callmanagement.dto.UserDTO;
 import com.pfe.callmanagement.service.UserService;
 
@@ -59,18 +60,31 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getUsersByRole(@PathVariable String roleName) {
         List<UserDTO> response = userService.getUsersByRole(roleName);
         return ResponseEntity.ok(response);
-    }
+}
+
+    /**
+     * Get currently authenticated user
+     */
+    @GetMapping("/me")
+    @Operation(summary = "Get current user", description = "Returns the authenticated user's profile")
+    public ResponseEntity<UserDTO> getCurrentUser() {
+
+        return ResponseEntity.ok(userService.getCurrentUser());
+}
 
     /**
      * Update user endpoint
      */
     @PutMapping("/{userId}")
-    @Operation(summary = "Update user", description = "Update user information")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId, @Valid @RequestBody UserDTO userDTO) {
-        UserDTO response = userService.updateUser(userId, userDTO);
-        return ResponseEntity.ok(response);
-    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update user", description = "Update an existing user")
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserRequest request) {
 
+        UserDTO response = userService.updateUser(userId, request);
+        return ResponseEntity.ok(response);
+}
     /**
      * Delete user endpoint
      */
@@ -80,5 +94,17 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
+    }
+    /**
+     * Change password endpoint
+     */
+    @PutMapping("/change-password")
+    @Operation(summary = "Change password", description = "Change the password of the authenticated user")
+    public ResponseEntity<String> changePassword(
+            @Valid @RequestBody ChangePasswordDTO dto) {
+
+        userService.changePassword(dto);
+
+        return ResponseEntity.ok("Password changed successfully.");
     }
 }
