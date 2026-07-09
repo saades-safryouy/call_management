@@ -52,6 +52,16 @@ public class DocumentService {
 }
 
     /**
+     * Get all documents
+     */
+    public List<DocumentDTO> getAllDocuments() {
+        return documentRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Get document by ID
      */
     public DocumentDTO getDocumentById(Long documentId) {

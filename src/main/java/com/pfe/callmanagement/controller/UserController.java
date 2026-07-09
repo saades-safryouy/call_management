@@ -56,6 +56,7 @@ public class UserController {
      * Get users by role endpoint
      */
     @GetMapping("/role/{roleName}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR','MANAGER')")
     @Operation(summary = "Get users by role", description = "Retrieve all users with a specific role")
     public ResponseEntity<List<UserDTO>> getUsersByRole(@PathVariable String roleName) {
         List<UserDTO> response = userService.getUsersByRole(roleName);

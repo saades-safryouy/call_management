@@ -3,7 +3,9 @@ package com.pfe.callmanagement.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.pfe.callmanagement.dto.EvaluationDTO;
 import com.pfe.callmanagement.entity.Application;
@@ -37,16 +39,36 @@ public class EvaluationService {
         User evaluator = userRepository.findById(dto.getEvaluatorId())
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", dto.getEvaluatorId()));
 
+          if (evaluationRepository.findByApplication_ApplicationIdAndEvaluator_UserId(
+                dto.getApplicationId(),
+                dto.getEvaluatorId()).isPresent()) {
+                
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already evaluated this application.");
+        }
+
+        if (application.getEvaluator() == null || !application.getEvaluator().getUserId().equals(evaluator.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already evaluated this application.");
+}
+
         Evaluation evaluation = new Evaluation();
         evaluation.setScore(dto.getScore());
         evaluation.setComment(dto.getComment());
         evaluation.setApplication(application);
         evaluation.setEvaluator(evaluator);
+
         if (dto.getEvaluationDate() != null) {
             evaluation.setEvaluationDate(dto.getEvaluationDate());
         }
 
         Evaluation savedEval = evaluationRepository.save(evaluation);
+
+        // Calculate the average score
+        Double averageScore = evaluationRepository.getAverageScoreForApplication(
+                application.getApplicationId());
+
+        application.setFinalScore(averageScore);
+        applicationRepository.save(application);
+
         return mapToDTO(savedEval);
     }
 

@@ -18,8 +18,12 @@ public interface CallForApplicationRepository extends JpaRepository<CallForAppli
     List<CallForApplication> findByCreatedBy_UserId(Long userId);
 
     List<CallForApplication> findByTitleContainingIgnoreCase(String title);
-
+    
     List<CallForApplication> findByStatusOrderByClosingDateAsc(String status);
+    
+    long count();
+    
+    Long countByStatus(String status);
 
     @Query(" SELECT c FROM CallForApplication c WHERE c.openingDate BETWEEN :startDate AND :endDate ")
     List<CallForApplication> findOpeningsBetweenDates(
@@ -30,9 +34,6 @@ public interface CallForApplicationRepository extends JpaRepository<CallForAppli
     List<CallForApplication> findActiveOpenings(
             @Param("date") LocalDateTime date);
 
-    long count();
-
-    long countByStatus(String status);
 
     @Query("SELECT COUNT(c) FROM CallForApplication c WHERE c.closingDate < CURRENT_TIMESTAMP")
     long countExpiredCalls();

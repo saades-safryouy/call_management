@@ -34,7 +34,12 @@ public class ApplicationDTO {
 
     private String callTitle;
 
+    private Long evaluatorId;
+
+    private String evaluatorEmail;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

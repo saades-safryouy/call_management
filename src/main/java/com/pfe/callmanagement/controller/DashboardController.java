@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pfe.callmanagement.dto.DashboardDTO;
 import com.pfe.callmanagement.service.DashboardService;
-
+import org.springframework.security.core.Authentication;
+import com.pfe.callmanagement.dto.EvaluatorDashboardDTO;
+import org.springframework.web.bind.annotation.PathVariable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 /**
  * Controller for dashboard statistics.
  */
@@ -37,4 +40,16 @@ public class DashboardController {
 
         return ResponseEntity.ok(response);
     }
+
+
+
+    @GetMapping("/evaluator/{evaluatorId}")
+    @Operation(summary = "Evaluator Dashboard")
+    public ResponseEntity<EvaluatorDashboardDTO> getEvaluatorDashboard(
+            @PathVariable Long evaluatorId) {
+
+        return ResponseEntity.ok(
+            dashboardService.getEvaluatorDashboard(evaluatorId));
+    }
 }
+

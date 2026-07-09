@@ -108,7 +108,7 @@ public class CallForApplicationController {
      * Update call endpoint
      */
     @PutMapping("/{callId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
+    @PreAuthorize("hasRole( 'HR')")
     @Operation(summary = "Update call", description = "Update call for application")
     public ResponseEntity<CallForApplicationDTO> updateCall(@PathVariable Long callId, @Valid @RequestBody CallForApplicationDTO dto) {
         CallForApplicationDTO response = callService.updateCall(callId, dto);
@@ -119,7 +119,7 @@ public class CallForApplicationController {
      * Delete call endpoint
      */
     @DeleteMapping("/{callId}")
-    @PreAuthorize("hasRole('ADMIN', 'HR')")
+    @PreAuthorize("hasRole('HR')")
     @Operation(summary = "Delete call", description = "Delete a call for application")
     public ResponseEntity<Void> deleteCall(@PathVariable Long callId) {
         callService.deleteCall(callId);

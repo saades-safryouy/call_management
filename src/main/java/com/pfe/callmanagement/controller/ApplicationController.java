@@ -123,6 +123,20 @@ public class ApplicationController {
                 applicationService.getApplicationsByStatusAndCall(status, callId));
     }
 
+
+
+    /**
+ * Get applications assigned to an evaluator
+ */
+   @GetMapping("/evaluator/{evaluatorId}")
+   @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR','EVALUATOR')")
+   @Operation(summary = "Get applications by evaluator")
+   public ResponseEntity<List<ApplicationDTO>> getApplicationsByEvaluator(
+           @PathVariable Long evaluatorId) {
+           
+       return ResponseEntity.ok(
+               applicationService.getApplicationsByEvaluator(evaluatorId));
+   }
     /**
      * Update application
      */
@@ -135,6 +149,34 @@ public class ApplicationController {
 
         return ResponseEntity.ok(
                 applicationService.updateApplication(applicationId, dto));
+    }
+
+    /**
+     * Assign evaluator to application
+     */
+    @PutMapping("/{applicationId}/assign/{evaluatorId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Assign evaluator")
+    public ResponseEntity<ApplicationDTO> assignEvaluator(
+            @PathVariable Long applicationId,
+            @PathVariable Long evaluatorId) {
+
+        return ResponseEntity.ok(
+               applicationService.assignEvaluator(applicationId, evaluatorId));
+    }
+
+    /**
+     * Change application status
+     */
+    @PutMapping("/{applicationId}/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','HR')")
+    @Operation(summary = "Change application status")
+    public ResponseEntity<ApplicationDTO> changeStatus(
+            @PathVariable Long applicationId,
+            @PathVariable String status) {
+            
+        return ResponseEntity.ok(
+                applicationService.changeStatus(applicationId, status));
     }
 
     /**

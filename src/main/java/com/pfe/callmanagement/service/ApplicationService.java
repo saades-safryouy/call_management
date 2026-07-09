@@ -28,7 +28,7 @@ public class ApplicationService {
     private final EvaluationRepository evaluationRepository;
 
     /**
-     * Create a new application
+     * Create application
      */
     public ApplicationDTO createApplication(ApplicationDTO dto) {
 
@@ -46,7 +46,6 @@ public class ApplicationService {
                                 "id",
                                 dto.getCallId()));
 
-        // Check duplicate application
         if (applicationRepository
                 .findByCandidate_UserIdAndCallForApplication_CallId(
                         dto.getCandidateId(),
@@ -57,13 +56,11 @@ public class ApplicationService {
                     "Candidate has already applied for this call.");
         }
 
-        // Check call status
         if (!"OPEN".equalsIgnoreCase(call.getStatus())) {
             throw new IllegalStateException(
                     "Applications are closed for this call.");
         }
 
-        // Check deadline
         if (call.getClosingDate().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException(
                     "This call has already closed.");
@@ -73,12 +70,13 @@ public class ApplicationService {
 
         application.setCandidate(candidate);
         application.setCallForApplication(call);
-        application.setStatus("SUBMITTED");
         application.setSubmissionDate(LocalDateTime.now());
+        application.setStatus("SUBMITTED");
+        application.setEvaluator(null);
 
-        Application savedApplication = applicationRepository.save(application);
+        Application saved = applicationRepository.save(application);
 
-        return mapToDTO(savedApplication);
+        return mapToDTO(saved);
     }
 
     /**
@@ -155,10 +153,23 @@ public class ApplicationService {
     }
 
     /**
+     * Get applications assigned to evaluator
+     */
+    public List<ApplicationDTO> getApplicationsByEvaluator(Long evaluatorId) {
+
+        return applicationRepository
+                .findByEvaluator_UserId(evaluatorId)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Update application
      */
-    public ApplicationDTO updateApplication(Long applicationId,
-                                            ApplicationDTO dto) {
+    public ApplicationDTO updateApplication(
+            Long applicationId,
+            ApplicationDTO dto) {
 
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() ->
@@ -179,6 +190,13 @@ public class ApplicationService {
             throw new IllegalArgumentException("Invalid application status.");
         }
 
+        if ("UNDER_REVIEW".equals(dto.getStatus())
+                && application.getEvaluator() == null) {
+
+            throw new IllegalArgumentException(
+                    "Assign an evaluator before changing the status.");
+        }
+
         application.setStatus(dto.getStatus());
 
         if ("UNDER_REVIEW".equals(dto.getStatus())
@@ -192,13 +210,96 @@ public class ApplicationService {
             }
         }
 
-        Application updatedApplication =
-                applicationRepository.save(application);
-
-        return mapToDTO(updatedApplication);
+        return mapToDTO(applicationRepository.save(application));
     }
 
     /**
+     * Assign evaluator
+     */
+    public ApplicationDTO assignEvaluator(
+            Long applicationId,
+            Long evaluatorId) {
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Application",
+                                "id",
+                                applicationId));
+
+        User evaluator = userRepository.findById(evaluatorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User",
+                                "id",
+                                evaluatorId));
+
+        if (!"EVALUATOR".equalsIgnoreCase(evaluator.getRole().getName())) {
+            throw new IllegalArgumentException(
+                    "Selected user is not an evaluator.");
+        }
+
+        if (!Boolean.TRUE.equals(evaluator.getEnabled())) {
+            throw new IllegalArgumentException(
+                    "Evaluator account is disabled.");
+        }
+
+        if ("ACCEPTED".equals(application.getStatus())
+                || "REJECTED".equals(application.getStatus())) {
+
+            throw new IllegalStateException(
+                    "Cannot assign an evaluator to a completed application.");
+        }
+
+        application.setEvaluator(evaluator);
+        application.setStatus("UNDER_REVIEW");
+
+        return mapToDTO(applicationRepository.save(application));
+    }
+
+        /**
+         * Change application status
+         */
+
+public ApplicationDTO changeStatus(Long applicationId, String status) {
+
+    Application application = applicationRepository.findById(applicationId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Application",
+                            "id",
+                            applicationId));
+
+    List<String> allowedStatus = List.of(
+            "SUBMITTED",
+            "UNDER_REVIEW",
+            "SHORTLISTED",
+            "ACCEPTED",
+            "REJECTED"
+    );
+
+    if (!allowedStatus.contains(status)) {
+        throw new IllegalArgumentException("Invalid application status.");
+    }
+
+    application.setStatus(status);
+
+    if ("UNDER_REVIEW".equals(status)
+            || "ACCEPTED".equals(status)) {
+
+        Double average =
+                evaluationRepository.getAverageScoreForApplication(applicationId);
+
+        if (average != null) {
+            application.setFinalScore(average);
+        }
+    }
+
+    return mapToDTO(applicationRepository.save(application));
+}
+
+
+        /**
      * Delete application
      */
     public void deleteApplication(Long applicationId) {
@@ -223,12 +324,24 @@ public class ApplicationService {
                 application.getSubmissionDate(),
                 application.getStatus(),
                 application.getFinalScore(),
+
                 application.getCandidate().getUserId(),
                 application.getCandidate().getEmail(),
+
                 application.getCallForApplication().getCallId(),
                 application.getCallForApplication().getTitle(),
+
+                application.getEvaluator() != null
+                        ? application.getEvaluator().getUserId()
+                        : null,
+
+                application.getEvaluator() != null
+                        ? application.getEvaluator().getEmail()
+                        : null,
+
                 application.getCreatedAt(),
                 application.getUpdatedAt()
         );
     }
+
 }

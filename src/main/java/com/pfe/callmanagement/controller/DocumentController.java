@@ -59,7 +59,7 @@ public class DocumentController {
     /**
      * Download document
      */
-   @GetMapping("/download/{fileName}")
+    @GetMapping("/download/{fileName}")
     @PreAuthorize("hasAnyRole('ADMIN','HR','MANAGER','EVALUATOR','CANDIDATE')")
     @Operation(summary = "Download document")
     public ResponseEntity<Resource> downloadFile(
@@ -71,7 +71,14 @@ public class DocumentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
-}
+    }
+    
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','HR','MANAGER')")
+    public ResponseEntity<List<DocumentDTO>> getAllDocuments() {
+     return ResponseEntity.ok(documentService.getAllDocuments());
+    }
 
     /**
      * Get document by ID

@@ -62,6 +62,10 @@ public class Application {
     @ToString.Exclude
     private Set<Evaluation> evaluations = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "evaluator_id")
+    private User evaluator;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

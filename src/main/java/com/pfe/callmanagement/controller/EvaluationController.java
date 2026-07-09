@@ -67,6 +67,7 @@ public class EvaluationController {
     /**
      * Get evaluations by evaluator endpoint
      */
+    @GetMapping("/evaluator/{evaluatorId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Get evaluations by evaluator", description = "Retrieve all evaluations from a specific evaluator")
     public ResponseEntity<List<EvaluationDTO>> getEvaluationsByEvaluator(@PathVariable Long evaluatorId) {

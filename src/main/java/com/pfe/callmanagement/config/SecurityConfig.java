@@ -42,6 +42,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
 
@@ -100,37 +101,20 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // =========================
-                // Public Endpoints
-                // =========================
+                // =====================================================
+                // PUBLIC
+                // =====================================================
 
                 .requestMatchers("/auth/**").permitAll()
-
                 .requestMatchers("/public/**").permitAll()
-
                 .requestMatchers("/swagger-ui/**").permitAll()
-
                 .requestMatchers("/swagger-ui.html").permitAll()
-
                 .requestMatchers("/v3/api-docs/**").permitAll()
-
                 .requestMatchers("/api-docs/**").permitAll()
 
-                .requestMatchers("/dashboard/**")
-                .hasAnyRole("ADMIN", "MANAGER", "HR")
-
-
-                // =========================
-                // Role Management
-                // =========================
-
-                .requestMatchers("/roles/**")
-                .hasRole("ADMIN")
-
-
-                // =========================
-                // User Management
-                // =========================
+                // =====================================================
+                // USER PROFILE
+                // =====================================================
 
                 .requestMatchers(HttpMethod.GET, "/users/me")
                 .authenticated()
@@ -138,109 +122,147 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/users/change-password")
                 .authenticated()
 
+                // =====================================================
+                // ADMIN ONLY
+                // =====================================================
+
                 .requestMatchers("/users/**")
+                .hasAnyRole("ADMIN" , "HR")
+
+                .requestMatchers("/roles/**")
                 .hasRole("ADMIN")
 
-                // =========================
-                // Calls For Applications
-                // =========================
+                // =====================================================
+                // CALLS
+                // =====================================================
 
-                // Everyone can view active calls
+                // Active calls visible to everyone
                 .requestMatchers(HttpMethod.GET, "/calls/active")
-                .hasAnyRole("ADMIN","HR","MANAGER","EVALUATOR","CANDIDATE")
+                .hasAnyRole(
+                        "ADMIN",
+                        "HR",
+                        "MANAGER",
+                        "EVALUATOR",
+                        "CANDIDATE")
 
-                // Employees can view all calls
+                // Internal calls
                 .requestMatchers(HttpMethod.GET, "/calls/**")
-                .hasAnyRole("ADMIN","HR","MANAGER","EVALUATOR")
+                .hasAnyRole(
+                        "ADMIN",
+                        "HR",
+                        "MANAGER",
+                        "EVALUATOR")
 
-                // Create calls
+                // HR manages calls
                 .requestMatchers(HttpMethod.POST, "/calls/**")
-                .hasAnyRole("ADMIN","HR","MANAGER")
+                .hasRole("HR")
 
-                // Update calls
                 .requestMatchers(HttpMethod.PUT, "/calls/**")
-                .hasAnyRole("ADMIN","HR","MANAGER")
+                .hasRole("HR")
 
-                // Delete calls
                 .requestMatchers(HttpMethod.DELETE, "/calls/**")
-                .hasAnyRole("ADMIN", "HR", "MANAGER")
+                .hasRole("HR")
 
-
-                // =========================
-                // Candidate
-                // =========================
-
-                .requestMatchers("/candidate/**")
-                .hasRole("CANDIDATE")  
-
-
-                // =========================
-                // Applications
-                // =========================
+                // =====================================================
+                // APPLICATIONS
+                // =====================================================
 
                 .requestMatchers(HttpMethod.GET, "/applications/**")
-                .hasAnyRole("ADMIN","HR","MANAGER","EVALUATOR","CANDIDATE")
+                .hasAnyRole(
+                        "ADMIN",
+                        "HR",
+                        "MANAGER",
+                        "EVALUATOR",
+                        "CANDIDATE")
 
+                // Candidate submits applications
                 .requestMatchers(HttpMethod.POST, "/applications/**")
                 .hasRole("CANDIDATE")
 
+                // HR updates application status
                 .requestMatchers(HttpMethod.PUT, "/applications/**")
-                .hasAnyRole("ADMIN","HR","MANAGER")
+                .hasRole("HR")
 
+                // No deletion
                 .requestMatchers(HttpMethod.DELETE, "/applications/**")
-                .hasAnyRole("ADMIN","HR")
+                .denyAll()
 
+                // =====================================================
+                // DOCUMENTS
+                // =====================================================
 
-                
+                // Candidate uploads documents
+                .requestMatchers(HttpMethod.POST, "/documents/**")
+                .hasRole("CANDIDATE")
 
-                // =========================
-                // Evaluations
-                // =========================
+                // Everyone involved can download/view
+                .requestMatchers(HttpMethod.GET, "/documents/**")
+                .hasAnyRole(
+                        "HR",
+                        "ADMIN",
+                        "MANAGER",
+                        "EVALUATOR",
+                        "CANDIDATE")
 
+                // No delete
+                .requestMatchers(HttpMethod.DELETE, "/documents/**")
+                .denyAll()
+
+                // =====================================================
+                // EVALUATIONS
+                // =====================================================
+
+                // HR, Manager and Admin may consult evaluations
                 .requestMatchers(HttpMethod.GET, "/evaluations/**")
-                .hasAnyRole("ADMIN","MANAGER","EVALUATOR")
+                .hasAnyRole(
+                        "ADMIN",
+                        "HR",
+                        "MANAGER",
+                        "EVALUATOR")
 
+                // Only evaluator writes evaluations
                 .requestMatchers(HttpMethod.POST, "/evaluations/**")
-                .hasAnyRole("ADMIN","MANAGER","EVALUATOR")
+                .hasRole("EVALUATOR")
 
                 .requestMatchers(HttpMethod.PUT, "/evaluations/**")
-                .hasAnyRole("ADMIN","MANAGER","EVALUATOR")
+                .hasRole("EVALUATOR")
 
+                // No delete
                 .requestMatchers(HttpMethod.DELETE, "/evaluations/**")
-                .hasAnyRole("ADMIN","MANAGER")
+                .denyAll()
 
+                // =====================================================
+                // CANDIDATE
+                // =====================================================
 
-                // =========================
-                // Documents
-                // =========================
+                .requestMatchers("/candidate/**")
+                .hasRole("CANDIDATE")
 
-                .requestMatchers("/documents/**")
-                .authenticated()
+                // =====================================================
+                // DASHBOARDS
+                // =====================================================
 
-
-                // =========================
-                // Dashboard
-                // =========================
+                .requestMatchers(HttpMethod.GET, "/dashboard/statistics")
+                .hasAnyRole("ADMIN", "HR" , "MANAGER")
 
                 .requestMatchers("/dashboard/admin/**")
                 .hasRole("ADMIN")
 
                 .requestMatchers("/dashboard/hr/**")
-                .hasAnyRole("ADMIN","HR")
+                .hasRole("HR")
 
                 .requestMatchers("/dashboard/manager/**")
-                .hasAnyRole("ADMIN","MANAGER")
+                .hasRole("MANAGER")
 
                 .requestMatchers("/dashboard/evaluator/**")
-                .hasAnyRole("ADMIN","EVALUATOR")
+                .hasRole("EVALUATOR")
 
                 .requestMatchers("/dashboard/candidate/**")
                 .hasRole("CANDIDATE")
 
-
-                // =========================
-                // Everything Else
-                // =========================
+                // =====================================================
+                // EVERYTHING ELSE
+                // =====================================================
 
                 .anyRequest().authenticated()
 
