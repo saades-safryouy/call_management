@@ -19,10 +19,24 @@ import Login from './pages/Login/Login';
 import Forbidden from './pages/errors/Forbidden';
 import NotFound from './pages/errors/NotFound';
 
-// Role pages
+// Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
-import Users from './pages/admin/Users/Users';
+import ApplicationsPage from './pages/admin/Applications/Applications';
+import CallsPage from './pages/admin/Calls/Calls';
+import Reports from './pages/admin/Reports/Reports';
+import DocumentsPage from './pages/admin/Documents/Documents';
+
+// HR Pages
 import HRDashboard from './pages/hr/Dashboard';
+import Calls from './pages/hr/Calls/Calls';
+import Applications from './pages/hr/Applications/Applications';
+
+// Evaluator pages
+import AssignedApplications from './pages/evaluator/Applications/AssignedApplications';
+
+// Role pages
+import ProfilePage from './pages/Profile/ProfilePage';
+import Users from './pages/admin/Users/Users';
 import ManagerDashboard from './pages/manager/Dashboard';
 import EvaluatorDashboard from './pages/evaluator/Dashboard';
 import CandidateHome from './pages/candidate/Dashboard';
@@ -46,36 +60,26 @@ function App() {
 
                 {/* ADMINISTRATOR */}
                 <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute allowedRoles={['ADMIN']}>
-                      <EmployeeLayout />
-                    </ProtectedRoute>
-                  }
-                >
+                  path="/admin"element={<ProtectedRoute allowedRoles={['ADMIN']}><EmployeeLayout /></ProtectedRoute>}>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="users" element={<Users />} />
-                  <Route path="calls" element={<PlaceholderPage title="Calls" subtitle="Manage calls for applications" />} />
+                  <Route path="calls" element={<CallsPage />} />
+                  <Route path="applications" element={<ApplicationsPage />} />
+                  <Route path="documents" element={<DocumentsPage />} />
+                  <Route path="/admin/reports" element={ <Reports />  }/>
                   <Route path="reports" element={<PlaceholderPage title="Reports" subtitle="System reports and exports" />} />
-                  <Route path="settings" element={<PlaceholderPage title="Settings" subtitle="Platform configuration" />} />
+                  <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 
                 {/* HR */}
-                <Route
-                  path="/hr"
-                  element={
-                    <ProtectedRoute allowedRoles={['HR']}>
-                      <EmployeeLayout />
-                    </ProtectedRoute>
-                  }
-                >
+                <Route  path="/hr"element={<ProtectedRoute allowedRoles={['HR']}><EmployeeLayout /></ProtectedRoute>}>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<HRDashboard />} />
-                  <Route path="calls" element={<PlaceholderPage title="Calls" subtitle="Create and manage calls for applications" />} />
-                  <Route path="applications" element={<PlaceholderPage title="Applications" subtitle="Review submitted applications" />} />
-                  <Route path="assign-evaluators" element={<PlaceholderPage title="Assign Evaluators" subtitle="Assign evaluators to applications" />} />
+                  <Route path="calls" element={<Calls />} />
+                  <Route path="applications" element={<Applications />} />
+                  <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 
@@ -107,7 +111,7 @@ function App() {
                 >
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<EvaluatorDashboard />} />
-                  <Route path="assigned-applications" element={<PlaceholderPage title="Assigned Applications" subtitle="Applications assigned to you" />} />
+                  <Route path="assigned-applications" element={<AssignedApplications />} />
                   <Route path="evaluations" element={<PlaceholderPage title="Evaluations" subtitle="Your submitted evaluations" />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
@@ -126,7 +130,7 @@ function App() {
                   <Route path="calls" element={<PlaceholderPage contained title="Available Calls" subtitle="Browse and apply to open positions" />} />
                   <Route path="applications" element={<PlaceholderPage contained title="My Applications" subtitle="Track your submitted applications" />} />
                   <Route path="documents" element={<PlaceholderPage contained title="Documents" subtitle="Manage your CV and documents" />} />
-                  <Route path="profile" element={<PlaceholderPage contained title="Profile" subtitle="Your personal information" />} />
+                  <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
 

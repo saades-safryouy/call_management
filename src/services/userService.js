@@ -2,28 +2,14 @@ import axiosClient from '../api/client';
 import { API_ENDPOINTS } from '../utils/constants';
 
 /**
- * User Service — /users
+ * User Service - /users
  * Pure API communication. Errors bubble up with the interceptor's
  * `error.userMessage` attached; callers surface them via toasts.
- *
- * NOTE: the backend exposes no POST /users. New users are created through
- * authService.register (POST /auth/register), which requires a roleName.
  */
 const userService = {
-  /**
-   * Create a user via POST /auth/register.
-   * Unlike authService.register, this does NOT persist the returned token/user,
-   * so an admin creating an account keeps their own session intact.
-   * @param {{email, password, firstName, lastName, roleName}} payload
-   */
-  create: async (payload) => {
-    const { data } = await axiosClient.post(API_ENDPOINTS.REGISTER, payload);
-    return data;
-  },
-
-  /** GET /users — list all users (ADMIN, MANAGER). */
-  getAll: async () => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.USERS);
+  /** GET /users - list users. Accepts optional filter/pagination params. */
+  getAll: async (params = {}) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.USERS, { params });
     return data;
   },
 
@@ -33,19 +19,51 @@ const userService = {
     return data;
   },
 
+  /** GET /users/me - current authenticated user profile. */
+  getCurrentUser: async () => {
+    const { data } = await axiosClient.get('/users/me');
+    return data;
+  },
+
   /** GET /users/role/{roleName} */
   getByRole: async (roleName) => {
     const { data } = await axiosClient.get(API_ENDPOINTS.USERS_BY_ROLE(roleName));
     return data;
   },
 
-  /** PUT /users/{id} — body: UserDTO */
-  update: async (userId, userDTO) => {
-    const { data } = await axiosClient.put(API_ENDPOINTS.USER_BY_ID(userId), userDTO);
+  /** POST /users */
+  create: async (payload) => {
+    const { data } = await axiosClient.post(API_ENDPOINTS.USERS, payload);
     return data;
   },
 
-  /** DELETE /users/{id} (ADMIN only) */
+  /** PUT /users/{id} */
+  update: async (userId, payload) => {
+    const { data } = await axiosClient.put(API_ENDPOINTS.USER_BY_ID(userId), payload);
+    return data;
+  },
+
+  /** PUT /users/me - update current authenticated user profile. */
+  updateCurrentUser: async (payload) => {
+    const { data } = await axiosClient.put('/users/me', payload);
+    return data;
+  },
+
+  /** PUT /users/me/change-password */
+  changePassword: async (payload) => {
+    const { data } = await axiosClient.put('/users/me/change-password', payload);
+    return data;
+  },
+
+  /** PATCH /users/{id}/status - enable/disable user when supported by backend. */
+  updateStatus: async (userId, enabled) => {
+    const { data } = await axiosClient.patch(`${API_ENDPOINTS.USER_BY_ID(userId)}/status`, {
+      enabled,
+    });
+    return data;
+  },
+
+  /** DELETE /users/{id} */
   remove: async (userId) => {
     await axiosClient.delete(API_ENDPOINTS.USER_BY_ID(userId));
   },

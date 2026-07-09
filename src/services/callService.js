@@ -2,19 +2,13 @@ import axiosClient from '../api/client';
 import { API_ENDPOINTS } from '../utils/constants';
 
 /**
- * Call-for-Application Service — /calls
- * Body/response: CallForApplicationDTO
- *   { callId, title, description, openingDate, closingDate, status,
- *     createdById, createdByEmail, createdAt, updatedAt }
- *
- * BACKEND ACCESS NOTE: SecurityConfig restricts ALL /calls/** to ADMIN & MANAGER.
- * CANDIDATE / EVALUATOR / HR currently receive 403 (pending the agreed backend
- * relaxation for candidate/evaluator read access to /calls/active).
+ * Calls Service - /calls
+ * Handles calls for applications.
  */
 const callService = {
-  /** GET /calls */
-  getAll: async () => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS);
+  /** GET /calls - accepts optional filter/pagination params. */
+  getAll: async (params = {}) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS, { params });
     return data;
   },
 
@@ -25,36 +19,36 @@ const callService = {
   },
 
   /** GET /calls/status/{status} */
-  getByStatus: async (status) => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_BY_STATUS(status));
+  getByStatus: async (status, params = {}) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_BY_STATUS(status), { params });
     return data;
   },
 
   /** GET /calls/active */
-  getActive: async () => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_ACTIVE);
+  getActive: async (params = {}) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_ACTIVE, { params });
     return data;
   },
 
   /** GET /calls/creator/{userId} */
-  getByCreator: async (userId) => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_BY_CREATOR(userId));
+  getByCreator: async (userId, params = {}) => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.CALLS_BY_CREATOR(userId), { params });
     return data;
   },
 
-  /** POST /calls (ADMIN, HR, MANAGER) */
-  create: async (callDTO) => {
-    const { data } = await axiosClient.post(API_ENDPOINTS.CALLS, callDTO);
+  /** POST /calls */
+  create: async (payload) => {
+    const { data } = await axiosClient.post(API_ENDPOINTS.CALLS, payload);
     return data;
   },
 
-  /** PUT /calls/{id} (ADMIN, HR, MANAGER) */
-  update: async (callId, callDTO) => {
-    const { data } = await axiosClient.put(API_ENDPOINTS.CALL_BY_ID(callId), callDTO);
+  /** PUT /calls/{id} */
+  update: async (callId, payload) => {
+    const { data } = await axiosClient.put(API_ENDPOINTS.CALL_BY_ID(callId), payload);
     return data;
   },
 
-  /** DELETE /calls/{id} (ADMIN, HR) */
+  /** DELETE /calls/{id} */
   remove: async (callId) => {
     await axiosClient.delete(API_ENDPOINTS.CALL_BY_ID(callId));
   },

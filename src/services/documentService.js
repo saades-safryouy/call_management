@@ -1,44 +1,92 @@
 import axiosClient from '../api/client';
 import { API_ENDPOINTS } from '../utils/constants';
 
-/**
- * Document Service — /documents
- * Body/response: DocumentDTO { documentId, fileName, fileType, filePath, applicationId }
- *
- * NOTE: the backend stores document metadata only (fileName, fileType,
- * filePath, applicationId) via JSON. There is no multipart file-upload
- * endpoint — see the "missing endpoints" report.
- */
 const documentService = {
-  /** POST /documents — body requires { fileName, filePath, applicationId } */
-  create: async (documentDTO) => {
-    const { data } = await axiosClient.post(API_ENDPOINTS.DOCUMENTS, documentDTO);
+  /**
+   * Upload document
+   * POST /documents/upload
+   */
+  upload: async (file, applicationId) => {
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('applicationId', applicationId);
+
+    const { data } = await axiosClient.post(
+      API_ENDPOINTS.DOCUMENT_UPLOAD,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
     return data;
   },
 
-  /** GET /documents/{id} */
+  /**
+   * Download file
+   */
+  download: async (fileName) => {
+    const response = await axiosClient.get(
+      API_ENDPOINTS.DOCUMENT_DOWNLOAD(fileName),
+      {
+        responseType: 'blob',
+      }
+    );
+
+    return response.data;
+  },
+
+   /**
+   * Get all documents
+   */
+  getAll: async () => {
+    const { data } = await axiosClient.get(API_ENDPOINTS.DOCUMENTS);
+    return data;
+  },
+
+  /**
+   * Get document by id
+   */
   getById: async (documentId) => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.DOCUMENT_BY_ID(documentId));
+    const { data } = await axiosClient.get(
+      API_ENDPOINTS.DOCUMENT_BY_ID(documentId)
+    );
+
     return data;
   },
 
-  /** GET /documents/application/{applicationId} */
+  /**
+   * Documents of one application
+   */
   getByApplication: async (applicationId) => {
     const { data } = await axiosClient.get(
       API_ENDPOINTS.DOCUMENTS_BY_APPLICATION(applicationId)
     );
+
     return data;
   },
 
-  /** GET /documents/type/{fileType} */
-  getByType: async (fileType) => {
-    const { data } = await axiosClient.get(API_ENDPOINTS.DOCUMENTS_BY_TYPE(fileType));
+  /**
+   * Filter by type
+   */
+  getByType: async (type) => {
+    const { data } = await axiosClient.get(
+      API_ENDPOINTS.DOCUMENTS_BY_TYPE(type)
+    );
+
     return data;
   },
 
-  /** DELETE /documents/{id} */
+  /**
+   * Delete document
+   */
   remove: async (documentId) => {
-    await axiosClient.delete(API_ENDPOINTS.DOCUMENT_BY_ID(documentId));
+    await axiosClient.delete(
+      API_ENDPOINTS.DOCUMENT_BY_ID(documentId)
+    );
   },
 };
 

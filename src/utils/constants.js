@@ -42,7 +42,13 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
-  CURRENT_USER: '/auth/me',
+
+
+    // User profile endpoints
+  CURRENT_USER: '/users/me',
+  CHANGE_PASSWORD: '/users/change-password',
+
+//
 
   // User endpoints
   USERS: '/users',
@@ -67,20 +73,36 @@ export const API_ENDPOINTS = {
   APPLICATIONS_BY_STATUS: (status) => `/applications/status/${status}`,
   APPLICATIONS_BY_CANDIDATE: (candidateId) => `/applications/candidate/${candidateId}`,
   APPLICATIONS_BY_CALL: (callId) => `/applications/call/${callId}`,
+  APPLICATIONS_BY_EVALUATOR: (evaluatorId) => `/applications/evaluator/${evaluatorId}`,
+  APPLICATION_ASSIGN_EVALUATOR: (applicationId, evaluatorId) => `/applications/${applicationId}/assign/${evaluatorId}`,
+  APPLICATION_CHANGE_STATUS: (applicationId, status) => `/applications/${applicationId}/status/${status}`,
 
-  // Document endpoints
+  // Documents
   DOCUMENTS: '/documents',
+  DOCUMENT_UPLOAD: '/documents/upload',
+  DOCUMENT_DOWNLOAD: (fileName) => `/documents/download/${fileName}`,
   DOCUMENT_BY_ID: (id) => `/documents/${id}`,
   DOCUMENTS_BY_APPLICATION: (applicationId) => `/documents/application/${applicationId}`,
   DOCUMENTS_BY_TYPE: (fileType) => `/documents/type/${fileType}`,
 
   // Evaluation endpoints
-  EVALUATIONS: '/evaluations',
-  EVALUATION_BY_ID: (id) => `/evaluations/${id}`,
-  EVALUATIONS_BY_APPLICATION: (applicationId) => `/evaluations/application/${applicationId}`,
-  EVALUATIONS_BY_EVALUATOR: (evaluatorId) => `/evaluations/evaluator/${evaluatorId}`,
-  EVALUATION_AVERAGE_SCORE: (applicationId) =>
-    `/evaluations/application/${applicationId}/average-score`,
+EVALUATIONS: '/evaluations',
+EVALUATION_BY_ID: (id) =>`/evaluations/${id}`,
+EVALUATIONS_BY_APPLICATION: (applicationId) =>`/evaluations/application/${applicationId}`,
+EVALUATIONS_BY_EVALUATOR: (evaluatorId) =>`/evaluations/evaluator/${evaluatorId}`,
+EVALUATION_AVERAGE_SCORE: (applicationId) =>`/evaluations/application/${applicationId}/average-score`,
+
+  // Dashboard endpoints
+  DASHBOARD_STATISTICS: '/dashboard/statistics',
+  ADMIN_DASHBOARD: '/dashboard/admin',
+  HR_DASHBOARD: '/dashboard/hr',
+  MANAGER_DASHBOARD: '/dashboard/manager',
+  EVALUATOR_DASHBOARD:(evaluatorId) => `/dashboard/evaluator/${evaluatorId}`,
+  CANDIDATE_DASHBOARD: '/dashboard/candidate',
+
+  
+
+
 };
 
 /**

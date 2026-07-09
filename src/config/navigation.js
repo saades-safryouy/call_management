@@ -27,20 +27,22 @@ export const EMPLOYEE_NAV = {
     { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
     { label: 'Users', to: '/admin/users', icon: Users },
     { label: 'Calls', to: '/admin/calls', icon: PhoneCall },
-    { label: 'Reports', to: '/admin/reports', icon: FileText },
-    { label: 'Settings', to: '/admin/settings', icon: Settings },
+    { label: 'Applications', to: '/admin/applications', icon: ClipboardList },
+    { label: 'Documents', to: '/admin/documents', icon: FolderOpen },
+    { label: 'Reports', to: '/admin/reports', icon: FileText,},
+    { label: 'Profile', to: '/admin/profile', icon: User },
   ],
   [USER_ROLES.HR]: [
     { label: 'Dashboard', to: '/hr/dashboard', icon: LayoutDashboard },
     { label: 'Calls', to: '/hr/calls', icon: PhoneCall },
     { label: 'Applications', to: '/hr/applications', icon: ClipboardList },
-    { label: 'Assign Evaluators', to: '/hr/assign-evaluators', icon: UserCheck },
+    { label: 'Profile', to: '/hr/profile', icon: User }
+
   ],
   [USER_ROLES.MANAGER]: [
-    { label: 'Dashboard', to: '/manager/dashboard', icon: LayoutDashboard },
-    { label: 'Reviews', to: '/manager/reviews', icon: ClipboardList },
-    { label: 'Decisions', to: '/manager/decisions', icon: Scale },
-    { label: 'Statistics', to: '/manager/statistics', icon: BarChart3 },
+  { label: 'Dashboard', to: '/manager/dashboard', icon: LayoutDashboard },
+  { label: 'Applications', to: '/manager/applications', icon: ClipboardList },
+  { label: 'Evaluations', to: '/manager/evaluations', icon: FileCheck },
   ],
   [USER_ROLES.EVALUATOR]: [
     { label: 'Dashboard', to: '/evaluator/dashboard', icon: LayoutDashboard },

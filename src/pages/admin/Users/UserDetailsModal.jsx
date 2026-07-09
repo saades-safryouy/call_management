@@ -1,12 +1,19 @@
 import React from 'react';
-import Modal from '../../../components/ui/Modal';
+import Badge, { roleColor, statusColor } from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
-import Badge, { statusColor } from '../../../components/ui/Badge';
+import Modal from '../../../components/ui/Modal';
+
+const emptyValue = '-';
+
+const getUserId = (user) => user?.userId ?? user?.id;
+
+const getFullName = (user) =>
+  `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || emptyValue;
 
 const formatDate = (value) => {
-  if (!value) return '—';
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
+  if (!value) return emptyValue;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 };
 
 const Row = ({ label, children }) => (
@@ -16,32 +23,41 @@ const Row = ({ label, children }) => (
   </div>
 );
 
-/**
- * Read-only view of a user's full UserDTO.
- */
 const UserDetailsModal = ({ open, user, onClose }) => {
   if (!user) return null;
-  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || '—';
+
+  const fullName = getFullName(user);
+  const role = user.roleName || user.role || emptyValue;
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       title="User details"
-      footer={<Button variant="secondary" onClick={onClose}>Close</Button>}
+      footer={
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+      }
     >
       <div className="mb-4 flex items-center gap-4">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary">
-          {(fullName !== '—' ? fullName : user.email || 'U').substring(0, 1).toUpperCase()}
+          {(fullName !== emptyValue ? fullName : user.email || 'U').substring(0, 1).toUpperCase()}
         </div>
-        <div>
-          <p className="text-lg font-bold text-gray-900">{fullName}</p>
-          <p className="text-sm text-gray-500">{user.email}</p>
+        <div className="min-w-0">
+          <p className="truncate text-lg font-bold text-gray-900">{fullName}</p>
+          <p className="truncate text-sm text-gray-500">{user.email || emptyValue}</p>
         </div>
       </div>
+
       <div>
-        <Row label="User ID">{user.userId}</Row>
-        <Row label="Role">{user.roleName || '—'}</Row>
+        <Row label="User ID">{getUserId(user) || emptyValue}</Row>
+        <Row label="First name">{user.firstName || emptyValue}</Row>
+        <Row label="Last name">{user.lastName || emptyValue}</Row>
+        <Row label="Email">{user.email || emptyValue}</Row>
+        <Row label="Role">
+          <Badge color={roleColor(role)}>{role}</Badge>
+        </Row>
         <Row label="Status">
           <Badge color={user.enabled ? statusColor('ACTIVE') : 'gray'}>
             {user.enabled ? 'Active' : 'Disabled'}
