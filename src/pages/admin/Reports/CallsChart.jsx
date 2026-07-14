@@ -23,7 +23,7 @@ export default function CallsChart({ calls = [] }) {
       elevation={0}
       sx={{
         height: '100%',
-        width: '100%',
+        width: '120%',
         borderRadius: '18px',
         border: '1px solid',
         borderColor: 'rgba(15, 23, 42, 0.08)',

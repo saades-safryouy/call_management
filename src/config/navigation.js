@@ -58,7 +58,6 @@ export const CANDIDATE_NAV = [
   { label: 'Home', to: '/candidate/dashboard', icon: Home },
   { label: 'Available Calls', to: '/candidate/calls', icon: Search },
   { label: 'My Applications', to: '/candidate/applications', icon: Send },
-  { label: 'Documents', to: '/candidate/documents', icon: FolderOpen },
   { label: 'Profile', to: '/candidate/profile', icon: User },
 ];
 

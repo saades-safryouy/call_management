@@ -76,6 +76,7 @@ export const API_ENDPOINTS = {
   APPLICATIONS_BY_EVALUATOR: (evaluatorId) => `/applications/evaluator/${evaluatorId}`,
   APPLICATION_ASSIGN_EVALUATOR: (applicationId, evaluatorId) => `/applications/${applicationId}/assign/${evaluatorId}`,
   APPLICATION_CHANGE_STATUS: (applicationId, status) => `/applications/${applicationId}/status/${status}`,
+  APPLICATIONS_ME: '/candidate/applications',
 
   // Documents
   DOCUMENTS: '/documents',

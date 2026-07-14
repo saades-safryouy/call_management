@@ -16,6 +16,7 @@ import PlaceholderPage from './components/ui/PlaceholderPage';
 
 // Auth & error pages
 import Login from './pages/Login/Login';
+import Register from './pages/Login/Register';
 import Forbidden from './pages/errors/Forbidden';
 import NotFound from './pages/errors/NotFound';
 
@@ -33,6 +34,13 @@ import Applications from './pages/hr/Applications/Applications';
 
 // Evaluator pages
 import AssignedApplications from './pages/evaluator/Applications/AssignedApplications';
+
+// Candidate pages
+import CandidateCalls from './pages/candidate/Calls/Calls';
+import CallDetails from './pages/candidate/Calls/CallDetails';
+import CandidateApplications from './pages/candidate/Applications/Applications';
+import ApplicationDetails from './pages/candidate/ApplicationDetails/ApplicationDetails';
+
 
 // Role pages
 import ProfilePage from './pages/Profile/ProfilePage';
@@ -53,6 +61,7 @@ function App() {
                 <Route path="/" element={<AuthLayout />}>
                   <Route index element={<Navigate to="/login" replace />} />
                   <Route path="login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
                 </Route>
 
                 {/* Error routes */}
@@ -117,18 +126,13 @@ function App() {
                 </Route>
 
                 {/* CANDIDATE (careers portal — top nav, no sidebar) */}
-                <Route
-                  path="/candidate"
-                  element={
-                    <ProtectedRoute allowedRoles={['CANDIDATE']}>
-                      <CandidateLayout />
-                    </ProtectedRoute>
-                  }
-                >
+                <Route path="/candidate" element={<ProtectedRoute allowedRoles={['CANDIDATE']}> <CandidateLayout /> </ProtectedRoute> }>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<CandidateHome />} />
-                  <Route path="calls" element={<PlaceholderPage contained title="Available Calls" subtitle="Browse and apply to open positions" />} />
-                  <Route path="applications" element={<PlaceholderPage contained title="My Applications" subtitle="Track your submitted applications" />} />
+                  <Route path="calls" element={<CandidateCalls />} />
+                  <Route path="calls/:callId" element={<CallDetails />} />
+                  <Route path="/candidate/applications/:applicationId" element={<ApplicationDetails />}/>
+                  <Route path="applications" element={<CandidateApplications />} />
                   <Route path="documents" element={<PlaceholderPage contained title="Documents" subtitle="Manage your CV and documents" />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />

@@ -16,7 +16,14 @@ const applicationService = {
     );
     return data;
   },
-
+  
+  getMyApplications: async () => {
+    const { data } = await axiosClient.get(
+      API_ENDPOINTS.APPLICATIONS_ME
+    );
+    return data;
+  },
+  
   getById: async (id) => {
     const { data } = await axiosClient.get(
       API_ENDPOINTS.APPLICATION_BY_ID(id)
