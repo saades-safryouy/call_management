@@ -36,6 +36,10 @@ public class ApplicationDTO {
 
     private Long evaluatorId;
 
+    private String evaluatorFirstName;
+
+    private String evaluatorLastName;
+
     private String evaluatorEmail;
 
     private LocalDateTime createdAt;

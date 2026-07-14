@@ -334,6 +334,13 @@ public ApplicationDTO changeStatus(Long applicationId, String status) {
                 application.getEvaluator() != null
                         ? application.getEvaluator().getUserId()
                         : null,
+                application.getEvaluator() != null
+                        ? application.getEvaluator().getFirstName()
+                        : null,
+                        
+                application.getEvaluator() != null
+                        ? application.getEvaluator().getLastName()
+                        : null,
 
                 application.getEvaluator() != null
                         ? application.getEvaluator().getEmail()

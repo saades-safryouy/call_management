@@ -123,8 +123,7 @@ public class ApplicationController {
                 applicationService.getApplicationsByStatusAndCall(status, callId));
     }
 
-
-
+     
     /**
  * Get applications assigned to an evaluator
  */

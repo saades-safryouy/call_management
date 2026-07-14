@@ -20,11 +20,13 @@ public interface CallForApplicationRepository extends JpaRepository<CallForAppli
     List<CallForApplication> findByTitleContainingIgnoreCase(String title);
     
     List<CallForApplication> findByStatusOrderByClosingDateAsc(String status);
+
+    List<CallForApplication> findTop6ByStatusOrderByOpeningDateDesc(String status);
+
+    long countByStatus(String status);
     
     long count();
     
-    Long countByStatus(String status);
-
     @Query(" SELECT c FROM CallForApplication c WHERE c.openingDate BETWEEN :startDate AND :endDate ")
     List<CallForApplication> findOpeningsBetweenDates(
             @Param("startDate") LocalDateTime startDate,

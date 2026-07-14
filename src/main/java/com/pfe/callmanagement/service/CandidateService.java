@@ -6,10 +6,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.pfe.callmanagement.dto.ApplicationDTO;
+import com.pfe.callmanagement.dto.CallForApplicationDTO;
 import com.pfe.callmanagement.dto.CandidateDashboardDTO;
 import com.pfe.callmanagement.entity.User;
 import com.pfe.callmanagement.exception.ResourceNotFoundException;
 import com.pfe.callmanagement.repository.ApplicationRepository;
+import com.pfe.callmanagement.repository.CallForApplicationRepository;
 import com.pfe.callmanagement.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,11 +22,11 @@ public class CandidateService {
 
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
-    public final ApplicationService applicationService;
+    private final CallForApplicationRepository callRepository;
 
-    /**
-     * Get dashboard statistics of the logged-in candidate.
-     */
+    private final ApplicationService applicationService;
+    private final CallForApplicationService callService;
+
     public CandidateDashboardDTO getDashboard() {
 
         String email = SecurityContextHolder.getContext()
@@ -58,19 +60,32 @@ public class CandidateService {
             average = 0.0;
         }
 
+        List<ApplicationDTO> recentApplications =
+                applicationRepository
+                        .findTop5ByCandidate_UserIdOrderBySubmissionDateDesc(candidateId)
+                        .stream()
+                        .map(applicationService::mapToDTO)
+                        .toList();
+
+        List<CallForApplicationDTO> activeCalls =
+                callRepository
+                        .findTop6ByStatusOrderByOpeningDateDesc("OPEN")
+                        .stream()
+                        .map(callService::mapToDTO)
+                        .toList();
+
         return new CandidateDashboardDTO(
                 total,
                 submitted,
                 underReview,
                 accepted,
                 rejected,
-                average
+                average,
+                recentApplications,
+                activeCalls
         );
     }
 
-    /**
-     * Get all applications of the logged-in candidate.
-     */
     public List<ApplicationDTO> getMyApplications() {
 
         String email = SecurityContextHolder.getContext()
@@ -81,10 +96,10 @@ public class CandidateService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User", "email", email));
 
-        return applicationRepository.findByCandidate_UserId(candidate.getUserId())
+        return applicationRepository
+                .findByCandidate_UserId(candidate.getUserId())
                 .stream()
                 .map(applicationService::mapToDTO)
                 .toList();
     }
-
 }

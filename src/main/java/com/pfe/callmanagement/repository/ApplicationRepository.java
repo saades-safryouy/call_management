@@ -74,6 +74,12 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     long countByEvaluator(User evaluator);
     
     long countByEvaluatorAndStatus(User evaluator, String status);
+
+    long countByCandidate(User candidate);
+
+    List<Application> findTop5ByCandidate_UserIdOrderBySubmissionDateDesc(Long candidateId);
+
+    long countByCandidateAndStatus(User candidate, String status);
     
     @Query("""
         SELECT AVG(a.finalScore)

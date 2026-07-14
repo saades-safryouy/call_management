@@ -28,22 +28,18 @@ public class CandidateController {
      * Dashboard statistics for the authenticated candidate.
      */
     @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('CANDIDATE')")
-    @Operation(summary = "Candidate dashboard")
     public ResponseEntity<CandidateDashboardDTO> getDashboard() {
-
         return ResponseEntity.ok(candidateService.getDashboard());
     }
 
     /**
-     * Applications of the authenticated candidate.
-     */
-    @GetMapping("/my-applications")
-    @PreAuthorize("hasRole('CANDIDATE')")
-    @Operation(summary = "My applications")
+      * Get applications of the authenticated candidate
+      */
+    @GetMapping("/applications")
     public ResponseEntity<List<ApplicationDTO>> getMyApplications() {
-
         return ResponseEntity.ok(candidateService.getMyApplications());
     }
+
+   
 
 }

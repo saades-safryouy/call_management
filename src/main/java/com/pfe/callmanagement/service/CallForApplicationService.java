@@ -121,6 +121,9 @@ public class CallForApplicationService {
                 .collect(Collectors.toList());
     }
 
+
+    
+
     /**
      * Update Call
      */
@@ -163,7 +166,7 @@ public class CallForApplicationService {
     /**
      * Mapper
      */
-    private CallForApplicationDTO mapToDTO(CallForApplication call) {
+    public CallForApplicationDTO mapToDTO(CallForApplication call) {
 
         return new CallForApplicationDTO(
                 call.getCallId(),

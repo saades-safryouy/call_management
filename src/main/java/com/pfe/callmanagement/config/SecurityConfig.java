@@ -151,7 +151,8 @@ public class SecurityConfig {
                         "ADMIN",
                         "HR",
                         "MANAGER",
-                        "EVALUATOR")
+                        "EVALUATOR",
+                        "CANDIDATE")
 
                 // HR manages calls
                 .requestMatchers(HttpMethod.POST, "/calls/**")
@@ -206,7 +207,7 @@ public class SecurityConfig {
 
                 // No delete
                 .requestMatchers(HttpMethod.DELETE, "/documents/**")
-                .denyAll()
+                .hasRole("CANDIDATE")
 
                 // =====================================================
                 // EVALUATIONS
@@ -259,6 +260,11 @@ public class SecurityConfig {
 
                 .requestMatchers("/dashboard/candidate/**")
                 .hasRole("CANDIDATE")
+
+
+
+
+
 
                 // =====================================================
                 // EVERYTHING ELSE
